@@ -1,0 +1,26 @@
+Написати запит котрий повертає дані по активним сесіям в БД (MySQL)
+  SELECT * FROM information_schema.processlist;
+
+Перевірити статус реплікації MySQL
+  SHOW SLAVE STATUS\G
+
+Отримати інформацію по максимальній кількості підключень до БД
+	SHOW VARIABLES LIKE 'max_connections';
+
+Є таблиця зі структурою до якої необхідно написати запити (Структура таблиці з завдання №2):
+  a)	вибрати всі діалоги користувача з ID = 12345
+    SELECT * FROM x27_social_dialogs WHERE id_user_from = 12345 OR id_user_to = 12345;
+
+  b)	вибрати всі діалоги користувача з ID = 12345 за останній тиждень де є нові повідомлення
+    SELECT * FROM x27_social_dialogs WHERE (id_user_from = 12345 OR id_user_to = 12345) AND has_new_msg = 1 AND date_created >= NOW() - INTERVAL 1 WEEK;
+  
+  c)	Підрахувати кількість всіх діалогів користувача з ID = 12345
+    SELECT COUNT(*) AS dialogue_count FROM x27_social_dialogs WHERE id_user_from = 12345 OR id_user_to = 12345; 
+
+  d)	Вибрати 10 користувачів з кількістю діалогів більше 10
+  Якщо беремо користувачів які отримуют і відправляють повідомлення і поеднуємо їх в едине поле:
+    SELECT user_id, COUNT(*) AS dialogue_count FROM ( SELECT id_user_from AS user_id FROM x27_social_dialogs UNION ALL SELECT id_user_to AS user_id FROM x27_social_dialogs ) AS user_dialogues GROUP BY user_id HAVING COUNT(*) > 10 ORDER BY dialogue_count DESC LIMIT 10;
+  Якщо взяти тільки користувачів які направляли повідомлення без врахування отримувачів, то запит буде виглядати так:
+    SELECT id_user_from, COUNT(*) AS dialogue_count FROM x27_social_dialogs GROUP BY id_user_from HAVING COUNT(*) > 10 ORDER BY dialogue_count DESC LIMIT 10;
+  e)	Вибрати топ 10 користувачів по кількості діалогів
+    SELECT user_id, COUNT(*) AS dialogue_count FROM ( SELECT id_user_from AS user_id FROM x27_social_dialogs UNION ALL SELECT id_user_to AS user_id FROM x27_social_dialogs ) AS user_dialogues GROUP BY user_id ORDER BY dialogue_count DESC LIMIT 10;
